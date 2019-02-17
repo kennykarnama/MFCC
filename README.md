@@ -2,12 +2,7 @@
 MFCC Feature Extraction In Matlab
 
 ## Disclaimer
-This project is not done yet. Any contributions will be considered. 
-
-Features not yet implemented :
-
-- Mel filter bank
-- Core step of mfcc
+This project is not done yet. Any contributions will be considered. see https://github.com/kennykarnama/MFCC/issues/1
 
 ### Prerequisites
 
