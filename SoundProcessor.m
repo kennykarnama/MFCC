@@ -12,6 +12,7 @@ classdef SoundProcessor < handle
         N = 0;
         %number of samples separate consecutive frames
         M = 0;
+        wavFile = '';
     end
    
     methods
@@ -21,6 +22,8 @@ classdef SoundProcessor < handle
             [y, fs] = audioread(wavPath);
             self.y = y;
             self.fs = fs;
+            metaFile = strsplit(wavPath,'.');
+            wavFile = metaFile(1,1);
          end
          
          % do pre-emphasis on signal
@@ -76,7 +79,7 @@ classdef SoundProcessor < handle
                 %frames = [frames,rowVector];
                 
                 %write to file
-                fileName = sprintf('frame_#%d.txt',frames);
+                fileName = sprintf('%s_frame_#%d.txt',self.wavFile,frames);
                 self.signalToFile(fileName,subVector);
                 
                 startIndex = endIndex - overlap + 1;
@@ -94,13 +97,13 @@ classdef SoundProcessor < handle
             self.clearWindowedFrameFiles();
             for frameIndex = 1 : self.frames
                 %read again filename of frame
-                fileName = sprintf('frame_#%d.txt',frameIndex);
+                fileName = sprintf('%s_frame_#%d.txt',self.wavFile,frameIndex);
                 %save it in tmp var
                 frame = self.reloadFrame(fileName);
                 %window read frame using hamming
                 windowed = self.doHammingWindow(frame);
                 %determine file name for windowed frame
-                windowedFile = sprintf('windowed_frame_#%d.txt',frameIndex);
+                windowedFile = sprintf('%s_windowed_frame_#%d.txt',self.wavFile,frameIndex);
                 %write it to file
                 self.signalToFile(windowedFile,windowed);
             end
@@ -112,14 +115,14 @@ classdef SoundProcessor < handle
             self.deleteFiles('dft_frame_#');
             for frameIndex = 1 : self.frames
                 %read again filename of frame
-                fileName = sprintf('windowed_frame_#%d.txt',frameIndex);
+                fileName = sprintf('%s_windowed_frame_#%d.txt',self.wavFile,frameIndex);
                 %save it in tmp var
                 frame = self.reloadFrame(fileName);
                 %fourier transform
                 %fourierTransformed = self.doDFT(frame);
                 fourierTransformed = fft(frame);
                 %determine file name for fourier transformed frame
-                fourierFile = sprintf('dft_frame_#%d.txt',frameIndex);
+                fourierFile = sprintf('%s_dft_frame_#%d.txt',self.wavFile,frameIndex);
                 %write it to file
                 self.signalToFile(fourierFile,fourierTransformed);
             end
@@ -287,7 +290,8 @@ classdef SoundProcessor < handle
                 %get filename
                 fileName = file.name;
                 %match filename with pattern (frame_#)
-                findIndex = strfind(fileName,'frame_#');
+                patt = sprintf('%s_frame_#', self.wavFile)
+                findIndex = strfind(fileName,patt);
                 %if pattern found
                 %delete it
                 if(isempty(findIndex) ~= true)
@@ -313,7 +317,8 @@ classdef SoundProcessor < handle
                 %get filename
                 fileName = file.name;
                 %match filename with pattern (frame_#)
-                findIndex = strfind(fileName,'windowed_frame_#');
+                patt = sprintf('%s_frame_#', self.wavFile)
+                findIndex = strfind(fileName,patt);
                 %if pattern found
                 %delete it
                 if(isempty(findIndex) ~= true)
